@@ -11,7 +11,6 @@ import AVFoundation
 
 class PlaySoundsViewController: UIViewController {
 
-    
     @IBOutlet weak var snailButton: UIButton!
     @IBOutlet weak var rabbitButton: UIButton!
     @IBOutlet weak var chipmunkButton: UIButton!
@@ -25,16 +24,26 @@ class PlaySoundsViewController: UIViewController {
     var audioEngine: AVAudioEngine!
     var audioPlayerNode: AVAudioPlayerNode!
     var stopTimer: Timer!
+    var uIButtons: [UIButton]!
     
     //This enumeration helps identify which button was pressed in the second view controller
     enum ButtonType: Int {
         case slow = 0, fast, chipmunk, vader, echo, reverb
+    }
+    
+    //This function sets the property contentMode for each button in order to fix the squishing of the buttons
+    func fixSquishing(buttons: [UIButton]) {
+        for button in buttons {
+            button.imageView?.contentMode = .scaleAspectFit
+        }
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         //This function prepares the file to be opened
+        uIButtons = [snailButton, rabbitButton, chipmunkButton, vaderButton, echoButton, reverbButton, stopButton]
+        fixSquishing(buttons: uIButtons)
         setupAudio()
     }
     

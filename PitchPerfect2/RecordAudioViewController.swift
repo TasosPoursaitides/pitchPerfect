@@ -12,37 +12,31 @@ import AVFoundation
 class RecordAudioViewController: UIViewController, AVAudioRecorderDelegate {
     
     @IBOutlet weak var recordButton: UIButton!
-    @IBOutlet weak var stopbutton: UIButton!
+    @IBOutlet weak var stopRecordingButton: UIButton!
     @IBOutlet weak var recordingLabel: UILabel!
     
     var audioRecorder: AVAudioRecorder!
     
-    //A function to hide the appropriate button(Record or Stop)
-    func hideAndShowButtons(hide button1: UIButton, show button2: UIButton ) {
-        button1.isHidden = true
-        button2.isHidden = false
-    }
-    
-    func updateRecordingLabel(message: String) {
-        recordingLabel.text = message
+    /*This well thought suggested by the Udacity Reviewer function checkes if the a recording is happening
+      and if so it configures the buttons and the label's text accordingly*/
+    func configureUI(isRecording: Bool) {
+        stopRecordingButton.isEnabled = isRecording // to disable the button
+        recordButton.isEnabled = !isRecording // to enable the button
+        recordingLabel.text = !isRecording ? "Tap to Record" : "Recording in Progress"
+
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
-        //At the beginning of the app, the stopButton is hidden
-        hideAndShowButtons(hide: stopbutton, show: recordButton)
-        updateRecordingLabel(message: "Tap To Record")
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
+        configureUI(isRecording: false)
     }
 
     @IBAction func startRecording(_ sender: UIButton) {
         //print("The recording has started")
-        hideAndShowButtons(hide: recordButton, show: stopbutton)
-        updateRecordingLabel(message: "Recording...")
+        
+        //We enable the stopRecording button button and update the label's text
+        configureUI(isRecording: true)
         
         //Constructing the path to where the audio file will be saved and setup its name
         let dirPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0] as String
@@ -69,9 +63,9 @@ class RecordAudioViewController: UIViewController, AVAudioRecorderDelegate {
     }
     
     @IBAction func stopRecording(_ sender: UIButton) {
-        //print("The recording has stopped")
-        hideAndShowButtons(hide: stopbutton, show: recordButton)
-        updateRecordingLabel(message: "Tap To Record")
+        
+        //We enable again the recordButton button so that we can record again
+        configureUI(isRecording: false)
         
         //We stop the recording
         audioRecorder.stop()
@@ -79,7 +73,8 @@ class RecordAudioViewController: UIViewController, AVAudioRecorderDelegate {
         try! session.setActive(false)
     }
     
-    
+    /*We check if the recording has completed successfully and if so we're getting ready to proceed to the next view
+      or else we print an error message*/
     func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
         if flag {
             performSegue(withIdentifier: "stopRecording", sender: audioRecorder.url)
@@ -88,6 +83,7 @@ class RecordAudioViewController: UIViewController, AVAudioRecorderDelegate {
         }
     }
     
+    //We preparing the view for the transition to the next view
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "stopRecording" {
             let playSoundsVC = segue.destination as! PlaySoundsViewController
